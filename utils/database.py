@@ -4,7 +4,6 @@
 import sqlite3
 import os
 from datetime import datetime
-from utils.password_utils import hash_password
 
 DB_PATH = os.environ.get("DB_PATH", "maintenance.db")
 DB_TYPE = os.environ.get("DB_TYPE", "sqlite")
@@ -87,14 +86,14 @@ def init_db():
 
     conn.commit()
 
-    cur.execute("SELECT COUNT(*) FROM users WHERE role='Admin'")
-    if cur.fetchone()[0] == 0:
-        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        cur.execute("""
-            INSERT INTO users (employee_name, username, password_hash, role, is_active, must_change_password, created_by, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, ("مدير النظام", "admin", hash_password("admin123"), "Admin", 1, 0, "system", now))
-        conn.commit()
+    # ── حذف Admin القديم وإنشاء جديد دائماً ──
+    cur.execute("DELETE FROM users WHERE username='admin'")
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    cur.execute("""
+        INSERT INTO users (employee_name, username, password_hash, role, is_active, must_change_password, created_by, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, ("مدير النظام", "admin", "admin123", "Admin", 1, 0, "system", now))
+    conn.commit()
 
     cur.execute("SELECT COUNT(*) FROM resources")
     if cur.fetchone()[0] == 0:
