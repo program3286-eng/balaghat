@@ -10,7 +10,7 @@ st.set_page_config(
     page_title="نظام إدارة البلاغات",
     page_icon="🔧",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # ===================== CSS عام =====================
@@ -69,6 +69,18 @@ h1, h2, h3, h4 {
 footer {visibility: hidden;}
 header {visibility: hidden;}
 
+/* إخفاء قائمة الصفحات الافتراضية في السايدبار */
+section[data-testid="stSidebarNav"] {display: none !important;}
+[data-testid="stSidebarNavItems"] {display: none !important;}
+[data-testid="stSidebarNavSeparator"] {display: none !important;}
+.st-emotion-cache-1rtdyuf {display: none !important;}
+.st-emotion-cache-eczf16 {display: none !important;}
+ul[data-testid="stSidebarNavItems"] {display: none !important;}
+
+/* إخفاء زر طي السايدبار */
+[data-testid="collapsedControl"] {display: none !important;}
+button[kind="header"] {display: none !important;}
+
 /* بطاقة المستخدم */
 .user-card {
     background: rgba(255,255,255,0.15);
@@ -93,6 +105,12 @@ if "edit_case_id" not in st.session_state:
 
 # ===================== صفحة تسجيل الدخول =====================
 if st.session_state["user"] is None:
+    # إخفاء السايدبار كاملاً في صفحة اللوجين
+    st.markdown(
+        "<style>section[data-testid='stSidebar']{display:none!important;}"
+        "[data-testid='collapsedControl']{display:none!important;}</style>",
+        unsafe_allow_html=True
+    )
     from pages.login import show as show_login
     show_login()
     st.stop()
