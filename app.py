@@ -18,29 +18,16 @@ section[data-testid="stSidebarNav"],[data-testid="stSidebarNavItems"],[data-test
 
 init_db()
 
-# ── مسح الـ session تماماً عند كل تشغيل جديد ──
-for key in ["user", "page", "edit_case_id"]:
-    if key not in st.session_state:
-        st.session_state[key] = None if key != "page" else "login"
+# ── مسح الـ session تماماً - لا نثق في أي بيانات محفوظة ──
+if "authenticated" not in st.session_state:
+    st.session_state.clear()
+    st.session_state["authenticated"] = False
+    st.session_state["user"] = None
+    st.session_state["page"] = "login"
+    st.session_state["edit_case_id"] = None
 
-# ── التحقق من صحة الـ user في قاعدة البيانات ──
-if st.session_state.get("user") is not None:
-    try:
-        from utils.database import get_connection
-        conn = get_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT id, is_active FROM users WHERE id=? AND is_active=1",
-                    (st.session_state["user"]["id"],))
-        valid = cur.fetchone()
-        conn.close()
-        if not valid:
-            st.session_state["user"] = None
-            st.session_state["page"] = "login"
-    except Exception:
-        st.session_state["user"] = None
-        st.session_state["page"] = "login"
-
-if st.session_state["user"] is None:
+if not st.session_state.get("authenticated", False):
+    st.session_state["user"] = None
     st.session_state["page"] = "login"
     st.markdown("<style>section[data-testid='stSidebar'],[data-testid='collapsedControl']{display:none!important}</style>", unsafe_allow_html=True)
     from pages.login import show as show_login
@@ -74,7 +61,8 @@ with st.sidebar:
     if st.button("🚪 تسجيل الخروج",key="nav_logout"):
         from utils.audit import log_action
         log_action(None,"تسجيل خروج",user["username"])
-        st.session_state["user"]=None; st.session_state["page"]="login"; st.rerun()
+        st.session_state.clear()
+        st.rerun()
 
 page = st.session_state.get("page","add_case")
 edit_id = st.session_state.get("edit_case_id")
