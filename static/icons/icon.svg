@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#1a3c6e"/>
+  <text x="256" y="300" font-size="280" text-anchor="middle" fill="white" font-family="Arial">🔧</text>
+  <text x="256" y="460" font-size="72" text-anchor="middle" fill="#f0c040" font-family="Arial" font-weight="bold">بلاغات</text>
+</svg>

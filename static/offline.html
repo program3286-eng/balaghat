@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بدون اتصال - نظام البلاغات</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: linear-gradient(135deg, #1a3c6e 0%, #0d2447 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .card {
+      text-align: center;
+      padding: 40px 30px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      max-width: 340px;
+      margin: 20px;
+    }
+    .icon { font-size: 80px; margin-bottom: 20px; }
+    h1 { font-size: 1.6rem; margin-bottom: 12px; }
+    p { opacity: 0.8; line-height: 1.6; margin-bottom: 24px; }
+    button {
+      background: #f0c040;
+      color: #1a3c6e;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: 'Tajawal', sans-serif;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:active { transform: scale(0.97); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📡</div>
+    <h1>لا يوجد اتصال بالإنترنت</h1>
+    <p>تأكد من اتصالك بالشبكة ثم حاول مرة أخرى</p>
+    <button onclick="window.location.reload()">🔄 إعادة المحاولة</button>
+  </div>
+</body>
+</html>

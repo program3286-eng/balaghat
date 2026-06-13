@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="بلاغات">
+  <meta name="theme-color" content="#1a3c6e">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+  <title>نظام إدارة البلاغات</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy: #1a3c6e;
+      --navy-dark: #0d2447;
+      --gold: #f0c040;
+      --gold-dark: #d4a820;
+      --white: #ffffff;
+      --gray: rgba(255,255,255,0.15);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Tajawal', sans-serif;
+      background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dark) 100%);
+      color: var(--white);
+      overflow: hidden;
+    }
+
+    /* ─── صفحة التثبيت ─── */
+    #install-page {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 40px 24px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* خلفية ديكورية */
+    #install-page::before {
+      content: '';
+      position: absolute;
+      top: -120px; right: -120px;
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(240,192,64,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    #install-page::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -80px;
+      width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* ─── الجزء العلوي ─── */
+    .top-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      z-index: 1;
+      margin-top: 20px;
+    }
+
+    .app-icon {
+      width: 120px; height: 120px;
+      background: linear-gradient(145deg, #2a5298, #1a3c6e);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 3px rgba(240,192,64,0.3);
+      animation: iconPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+      0%, 100% { box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 3px rgba(240,192,64,0.3); }
+      50%       { box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 8px rgba(240,192,64,0.15); }
+    }
+
+    .app-name {
+      font-size: 1.8rem;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .app-subtitle {
+      font-size: 0.95rem;
+      opacity: 0.75;
+      text-align: center;
+    }
+
+    /* ─── ميزات التطبيق ─── */
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: 340px;
+      z-index: 1;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--gray);
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .feature-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      background: rgba(240,192,64,0.15);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feature-text .title {
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .feature-text .desc {
+      font-size: 0.78rem;
+      opacity: 0.65;
+      margin-top: 2px;
+    }
+
+    /* ─── الجزء السفلي (الأزرار) ─── */
+    .bottom-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 340px;
+      z-index: 1;
+    }
+
+    /* زر التثبيت الرئيسي */
+    #btn-install {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--navy-dark);
+      border: none;
+      border-radius: 16px;
+      padding: 18px 24px;
+      font-family: 'Tajawal', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 6px 24px rgba(240,192,64,0.35);
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #btn-install::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+      border-radius: inherit;
+    }
+
+    #btn-install:active { transform: scale(0.97); box-shadow: 0 2px 12px rgba(240,192,64,0.25); }
+
+    #btn-install.hidden { display: none; }
+
+    /* زر "الدخول بدون تثبيت" */
+    #btn-skip {
+      background: transparent;
+      color: rgba(255,255,255,0.55);
+      border: none;
+      font-family: 'Tajawal', sans-serif;
+      font-size: 0.88rem;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 10px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    #btn-skip:active { opacity: 0.6; }
+
+    /* ─── رسالة "مثبّت بالفعل" ─── */
+    #already-installed {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      background: rgba(46,200,100,0.15);
+      border: 1px solid rgba(46,200,100,0.3);
+      border-radius: 14px;
+      padding: 14px 20px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+    }
+
+    #already-installed .check { font-size: 2rem; }
+    #already-installed .msg  { font-size: 0.92rem; font-weight: 700; }
+    #already-installed .sub  { font-size: 0.78rem; opacity: 0.7; }
+
+    /* ─── تعليمات يدوية (Chrome fallback) ─── */
+    #manual-steps {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 340px;
+      z-index: 1;
+    }
+
+    #manual-steps .step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--gray);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.88rem;
+    }
+
+    #manual-steps .step-num {
+      width: 28px; height: 28px;
+      background: var(--gold);
+      color: var(--navy-dark);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .manual-title {
+      font-size: 0.82rem;
+      opacity: 0.6;
+      text-align: center;
+      margin-bottom: -4px;
+    }
+
+    /* ─── صفحة التحميل ─── */
+    #loading-page {
+      display: none;
+      height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .spinner {
+      width: 56px; height: 56px;
+      border: 4px solid rgba(255,255,255,0.15);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      opacity: 0.9;
+    }
+
+    .loading-sub {
+      font-size: 0.85rem;
+      opacity: 0.55;
+    }
+
+    /* ─── إخفاء إذا مثبّت مسبقاً ─── */
+    .pwa-mode #install-page { display: none !important; }
+    .pwa-mode #loading-page { display: flex !important; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ صفحة التثبيت ═══ -->
+  <div id="install-page">
+
+    <div class="top-section">
+      <div class="app-icon">🔧</div>
+      <div>
+        <div class="app-name">نظام إدارة البلاغات</div>
+        <div class="app-subtitle">بلاغات الصيانة — أقصر وأسوان</div>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature-item">
+        <div class="feature-icon">📋</div>
+        <div class="feature-text">
+          <div class="title">إدخال البلاغات</div>
+          <div class="desc">إضافة وتعديل بلاغات الصيانة بسهولة</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-text">
+          <div class="title">بحث سريع</div>
+          <div class="desc">ابحث بالاسم أو رقم الأمر أو التليفون</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📊</div>
+        <div class="feature-text">
+          <div class="title">تقارير Excel</div>
+          <div class="desc">تصدير DATA و SEND وقطع الغيار</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-section">
+
+      <!-- زر التثبيت - يظهر فقط إذا كان المتصفح يدعمه -->
+      <button id="btn-install" class="hidden">
+        <span>📲</span>
+        <span>ثبّت التطبيق على الموبايل</span>
+      </button>
+
+      <!-- تعليمات يدوية للتثبيت عند عدم دعم الزر التلقائي -->
+      <div id="manual-steps">
+        <div class="manual-title">لتثبيت التطبيق يدوياً على Chrome:</div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <span>اضغط على <strong>⋮</strong> (ثلاث نقاط) في Chrome</span>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <span>اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong></span>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <span>اضغط <strong>"إضافة"</strong> ✅</span>
+        </div>
+      </div>
+
+      <!-- رسالة مثبّت بالفعل -->
+      <div id="already-installed">
+        <div class="check">✅</div>
+        <div class="msg">التطبيق مثبّت!</div>
+        <div class="sub">افتحه من الشاشة الرئيسية</div>
+      </div>
+
+      <button id="btn-skip">الدخول بدون تثبيت ←</button>
+    </div>
+
+  </div>
+
+  <!-- ═══ صفحة التحميل (بعد الضغط على الدخول) ═══ -->
+  <div id="loading-page">
+    <div class="app-icon" style="font-size:56px;width:100px;height:100px;border-radius:24px">🔧</div>
+    <div class="spinner"></div>
+    <div class="loading-text">جاري فتح النظام...</div>
+    <div class="loading-sub">لحظة واحدة</div>
+  </div>
+
+  <!-- ── Service Worker ── -->
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+      .then(r => console.log('SW registered:', r.scope))
+      .catch(e => console.warn('SW error:', e));
+  }
+  </script>
+
+  <script>
+  const APP_URL = '/app';   // رابط تطبيق Streamlit
+  let deferredPrompt = null;
+  let alreadyInstalled = false;
+
+  // ── هل التطبيق مفتوح كـ PWA (standalone) ؟ ──
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+
+  if (isStandalone) {
+    // مفتوح من أيقونة الموبايل → اذهب مباشرة للنظام
+    document.body.classList.add('pwa-mode');
+    goToApp();
+  }
+
+  // ── الاستماع لحدث التثبيت ──
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallButton();
+  });
+
+  function showInstallButton() {
+    const btn = document.getElementById('btn-install');
+    btn.classList.remove('hidden');
+    // إخفاء التعليمات اليدوية
+    document.getElementById('manual-steps').style.display = 'none';
+  }
+
+  // ── بعد التثبيت ──
+  window.addEventListener('appinstalled', () => {
+    alreadyInstalled = true;
+    document.getElementById('btn-install').classList.add('hidden');
+    document.getElementById('manual-steps').style.display = 'none';
+    document.getElementById('already-installed').style.display = 'flex';
+    document.getElementById('btn-skip').textContent = 'دخول للنظام ←';
+    console.log('✅ PWA installed');
+  });
+
+  // ── زر التثبيت ──
+  document.getElementById('btn-install').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (outcome === 'accepted') {
+      document.getElementById('btn-install').innerHTML =
+        '<span>⏳</span><span>جاري التثبيت...</span>';
+      document.getElementById('btn-install').disabled = true;
+    }
+  });
+
+  // ── زر "الدخول بدون تثبيت" ──
+  document.getElementById('btn-skip').addEventListener('click', () => {
+    goToApp();
+  });
+
+  // ── تأخير قصير ثم إظهار التعليمات اليدوية إذا لم يظهر الزر ──
+  setTimeout(() => {
+    const btn = document.getElementById('btn-install');
+    if (btn.classList.contains('hidden') && !alreadyInstalled) {
+      document.getElementById('manual-steps').style.display = 'flex';
+    }
+  }, 2500);
+
+  // ── الانتقال للتطبيق ──
+  function goToApp() {
+    document.getElementById('install-page').style.display = 'none';
+    document.getElementById('loading-page').style.display = 'flex';
+    // تأخير بسيط ثم التحويل
+    setTimeout(() => {
+      window.location.href = APP_URL;
+    }, 800);
+  }
+  </script>
+
+</body>
+</html>
