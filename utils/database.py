@@ -1,14 +1,13 @@
 """
-إعداد قاعدة البيانات - يدعم SQLite للتجربة المحلية وPostgreSQL للإنتاج
+إعداد قاعدة البيانات
 """
 import sqlite3
 import os
-import json
 from datetime import datetime
 from utils.password_utils import hash_password
 
 DB_PATH = os.environ.get("DB_PATH", "maintenance.db")
-DB_TYPE = os.environ.get("DB_TYPE", "sqlite")  # sqlite أو postgresql
+DB_TYPE = os.environ.get("DB_TYPE", "sqlite")
 
 def get_connection():
     if DB_TYPE == "postgresql":
@@ -28,11 +27,9 @@ def get_connection():
         return conn
 
 def init_db():
-    """إنشاء جداول قاعدة البيانات"""
     conn = get_connection()
     cur = conn.cursor()
 
-    # جدول المستخدمين
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,127 +47,63 @@ def init_db():
         )
     """)
 
-    # جدول البلاغات DATA
     cur.execute("""
         CREATE TABLE IF NOT EXISTS data_cases (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            governorate TEXT,
-            work_order_no TEXT UNIQUE,
-            phone1 TEXT,
-            phone2 TEXT,
-            customer_name TEXT,
-            address TEXT,
-            product_type TEXT,
-            customer_complaint TEXT,
-            booking_date TEXT,
-            device_model TEXT,
-            device_color TEXT,
-            screen_or_lamps TEXT,
-            pnc TEXT,
-            serial TEXT,
-            technical_report TEXT,
-            execution_date TEXT,
-            collection_reason TEXT,
-            fees REAL,
-            travel_fees REAL,
-            spare_parts_price REAL,
-            shipping_fees REAL,
-            discounts REAL,
-            center_amount REAL,
-            labor_amount REAL,
-            technician TEXT,
-            receipt_no TEXT,
-            invoice_book_status TEXT,
-            invoice_status TEXT,
-            warranty_status TEXT,
-            production_date TEXT,
-            warranty_date TEXT,
-            quantity TEXT,
-            spare_part_code1 TEXT,
-            spare_part_desc1 TEXT,
-            spare_part_code2 TEXT,
-            spare_part_desc2 TEXT,
-            spare_part_code3 TEXT,
-            spare_part_desc3 TEXT,
-            spare_part_code4 TEXT,
-            spare_part_desc4 TEXT,
-            spare_part_code5 TEXT,
-            spare_part_desc5 TEXT,
-            invoice_closer TEXT,
-            notes TEXT,
-            followup_report TEXT,
-            followup_by TEXT,
-            company TEXT,
-            spare_parts_after_discount REAL,
-            shipping_fees2 REAL,
-            net_center_inspections REAL,
-            manufacturer_spare_parts REAL,
-            send_status TEXT,
-            created_by TEXT,
-            created_at TEXT,
-            updated_by TEXT,
-            updated_at TEXT,
+            governorate TEXT, work_order_no TEXT UNIQUE, phone1 TEXT, phone2 TEXT,
+            customer_name TEXT, address TEXT, product_type TEXT, customer_complaint TEXT,
+            booking_date TEXT, device_model TEXT, device_color TEXT, screen_or_lamps TEXT,
+            pnc TEXT, serial TEXT, technical_report TEXT, execution_date TEXT,
+            collection_reason TEXT, fees REAL, travel_fees REAL, spare_parts_price REAL,
+            shipping_fees REAL, discounts REAL, center_amount REAL, labor_amount REAL,
+            technician TEXT, receipt_no TEXT, invoice_book_status TEXT, invoice_status TEXT,
+            warranty_status TEXT, production_date TEXT, warranty_date TEXT, quantity TEXT,
+            spare_part_code1 TEXT, spare_part_desc1 TEXT, spare_part_code2 TEXT, spare_part_desc2 TEXT,
+            spare_part_code3 TEXT, spare_part_desc3 TEXT, spare_part_code4 TEXT, spare_part_desc4 TEXT,
+            spare_part_code5 TEXT, spare_part_desc5 TEXT, invoice_closer TEXT, notes TEXT,
+            followup_report TEXT, followup_by TEXT, company TEXT, spare_parts_after_discount REAL,
+            shipping_fees2 REAL, net_center_inspections REAL, manufacturer_spare_parts REAL,
+            send_status TEXT, created_by TEXT, created_at TEXT, updated_by TEXT, updated_at TEXT,
             last_modified_token TEXT
         )
     """)
 
-    # جدول المراجع RESORS
     cur.execute("""
         CREATE TABLE IF NOT EXISTS resources (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            technician TEXT,
-            service_description TEXT UNIQUE,
-            center_amount REAL,
-            total_fees REAL,
-            company_amount REAL,
-            labor_amount REAL,
-            center_after_labor REAL,
-            governorate TEXT,
-            sort_order INTEGER DEFAULT 0
+            technician TEXT, service_description TEXT UNIQUE, center_amount REAL,
+            total_fees REAL, company_amount REAL, labor_amount REAL,
+            center_after_labor REAL, governorate TEXT, sort_order INTEGER DEFAULT 0
         )
     """)
 
-    # جدول سجل الحركات
     cur.execute("""
         CREATE TABLE IF NOT EXISTS audit_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            work_order_no TEXT,
-            action_type TEXT,
-            username TEXT,
-            old_values TEXT,
-            new_values TEXT,
-            action_at TEXT,
-            details TEXT
+            work_order_no TEXT, action_type TEXT, username TEXT,
+            old_values TEXT, new_values TEXT, action_at TEXT, details TEXT
         )
     """)
 
     conn.commit()
 
-    # إنشاء مستخدم Admin افتراضي إذا لم يكن موجوداً
     cur.execute("SELECT COUNT(*) FROM users WHERE role='Admin'")
-    count = cur.fetchone()[0]
-    if count == 0:
-        hashed = hash_password("Admin@1234")
+    if cur.fetchone()[0] == 0:
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cur.execute("""
             INSERT INTO users (employee_name, username, password_hash, role, is_active, must_change_password, created_by, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, ("مدير النظام", "admin", hashed, "Admin", 1, 0, "system", now))
+        """, ("مدير النظام", "admin", hash_password("admin123"), "Admin", 1, 0, "system", now))
         conn.commit()
 
-    # إضافة بيانات RESORS الافتراضية إذا كانت فارغة
     cur.execute("SELECT COUNT(*) FROM resources")
-    count = cur.fetchone()[0]
-    if count == 0:
+    if cur.fetchone()[0] == 0:
         _insert_default_resources(cur)
         conn.commit()
 
     conn.close()
 
 def _insert_default_resources(cur):
-    """إدخال بيانات RESORS الافتراضية"""
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # خدمات الأقصر (rows 2-11)
     luxor_services = [
         ("فني 1", "كشف وتصليح - الأقصر", 100, 150, 30, 20, 80, "الاقصر", 1),
         ("فني 2", "تغيير قطعة غيار - الأقصر", 200, 250, 50, 30, 170, "الاقصر", 2),
@@ -183,7 +116,6 @@ def _insert_default_resources(cur):
         ("فني 1", "تنظيف جهاز - الأقصر", 60, 90, 15, 10, 50, "الاقصر", 9),
         ("فني 2", "برمجة - الأقصر", 150, 200, 35, 25, 125, "الاقصر", 10),
     ]
-    # خدمات أسوان (rows 12-21)
     aswan_services = [
         ("فني 5", "كشف وتصليح - أسوان", 110, 160, 32, 22, 88, "اسوان", 11),
         ("فني 6", "تغيير قطعة غيار - أسوان", 210, 260, 52, 32, 178, "اسوان", 12),
@@ -196,8 +128,7 @@ def _insert_default_resources(cur):
         ("فني 5", "تنظيف جهاز - أسوان", 65, 95, 16, 11, 54, "اسوان", 19),
         ("فني 6", "برمجة - أسوان", 155, 205, 37, 26, 129, "اسوان", 20),
     ]
-    all_services = luxor_services + aswan_services
-    for svc in all_services:
+    for svc in luxor_services + aswan_services:
         cur.execute("""
             INSERT OR IGNORE INTO resources
             (technician, service_description, center_amount, total_fees, company_amount, labor_amount, center_after_labor, governorate, sort_order)
