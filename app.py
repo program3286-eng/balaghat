@@ -15,22 +15,46 @@ h1,h2,h3,h4{font-family:'Tajawal',sans-serif!important;color:#1a3c6e}
 section[data-testid="stSidebarNav"],[data-testid="stSidebarNavItems"],[data-testid="collapsedControl"]{display:none!important}
 .user-card{background:rgba(255,255,255,0.15);border-radius:12px;padding:12px;margin-bottom:16px;text-align:center}
 </style>""", unsafe_allow_html=True)
+
 init_db()
-st.session_state["user"] = st.session_state.get("user", None)
-st.session_state["page"] = st.session_state.get("page", "login")
-st.session_state["edit_case_id"] = st.session_state.get("edit_case_id", None)
+
+# ── مسح الـ session تماماً عند كل تشغيل جديد ──
+for key in ["user", "page", "edit_case_id"]:
+    if key not in st.session_state:
+        st.session_state[key] = None if key != "page" else "login"
+
+# ── التحقق من صحة الـ user في قاعدة البيانات ──
+if st.session_state.get("user") is not None:
+    try:
+        from utils.database import get_connection
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT id, is_active FROM users WHERE id=? AND is_active=1",
+                    (st.session_state["user"]["id"],))
+        valid = cur.fetchone()
+        conn.close()
+        if not valid:
+            st.session_state["user"] = None
+            st.session_state["page"] = "login"
+    except Exception:
+        st.session_state["user"] = None
+        st.session_state["page"] = "login"
+
 if st.session_state["user"] is None:
     st.session_state["page"] = "login"
     st.markdown("<style>section[data-testid='stSidebar'],[data-testid='collapsedControl']{display:none!important}</style>", unsafe_allow_html=True)
     from pages.login import show as show_login
     show_login()
     st.stop()
+
 user = st.session_state["user"]
 role = user["role"]
+
 if user.get("must_change_password"):
     from pages.change_password import show as show_change_pwd
     show_change_pwd(forced=True)
     st.stop()
+
 with st.sidebar:
     role_labels = {"Admin":"🔴 مدير النظام","Manager":"🟠 مدير","User":"🔵 موظف","Viewer":"⚪ مشاهد"}
     st.markdown(f"""<div class="user-card"><div style="font-size:2rem">👤</div><div style="font-weight:bold;font-size:1.1rem">{user['employee_name']}</div><div style="font-size:0.85rem;opacity:0.8">@{user['username']}</div><div style="font-size:0.8rem;margin-top:4px">{role_labels.get(role,'')}</div></div>""", unsafe_allow_html=True)
@@ -51,8 +75,10 @@ with st.sidebar:
         from utils.audit import log_action
         log_action(None,"تسجيل خروج",user["username"])
         st.session_state["user"]=None; st.session_state["page"]="login"; st.rerun()
+
 page = st.session_state.get("page","add_case")
 edit_id = st.session_state.get("edit_case_id")
+
 if page in ("manage_users","manage_resources","audit_log") and role not in ("Admin","Manager"):
     st.error("⛔ ليس لديك صلاحية"); st.stop()
 if page in ("add_case","edit_case"):
