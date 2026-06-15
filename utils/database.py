@@ -86,7 +86,6 @@ def init_db():
 
     conn.commit()
 
-    # ── حذف Admin القديم وإنشاء جديد دائماً ──
     cur.execute("DELETE FROM users WHERE username='admin'")
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     cur.execute("""
